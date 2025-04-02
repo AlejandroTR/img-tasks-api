@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { TaskRepository } from '../adapters/task.repository';
 import { Task } from '../../domain/task.entity';
-import { processImage } from '../utils/image.utils';
+import { ProcessedImage, processImage } from '../utils/image.utils';
 
 @Injectable()
 export class TaskService {
@@ -18,7 +18,9 @@ export class TaskService {
 
     const savedTask = await this.taskRepository.create(task);
 
-    // this.processImageAsync(imagePath, savedTask.taskId);
+    if (savedTask && savedTask.taskId) {
+      void this.processImageAsync(imagePath, savedTask.taskId);
+    }
 
     return savedTask;
   }
@@ -29,7 +31,7 @@ export class TaskService {
 
   private async processImageAsync(imagePath: string, taskId: string) {
     try {
-      const processedImages = processImage(imagePath);
+      const processedImages: ProcessedImage[] = await processImage(imagePath);
       await this.taskRepository.update(taskId, {
         status: 'completed',
         images: processedImages,
