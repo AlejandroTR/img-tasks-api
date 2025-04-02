@@ -8,8 +8,34 @@ import { Task } from '../../domain/task.entity';
 export class TaskRepository {
   constructor(@InjectModel('Task') private readonly taskModel: Model<Task>) {}
 
-  async create(task: Task): Promise<Task> {
+  async create(task: Task): Promise<Omit<Task, '_id'> | null> {
     const createdTask = new this.taskModel(task);
-    return createdTask.save();
+    await createdTask.save();
+
+    return this.taskModel
+      .findById(createdTask._id)
+      .lean()
+      .select('-_id')
+      .exec();
+  }
+
+  async update(
+    taskId: string,
+    updateData: Pick<Task, 'status' | 'images'>,
+  ): Promise<Task | null> {
+    return this.taskModel
+      .findOneAndUpdate(
+        { taskId },
+        {
+          ...updateData,
+          images: updateData.images ?? [],
+        },
+        { new: true },
+      )
+      .exec();
+  }
+
+  async getById(taskId: string): Promise<Task | null> {
+    return this.taskModel.findOne({ taskId }).exec();
   }
 }

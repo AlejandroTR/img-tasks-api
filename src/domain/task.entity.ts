@@ -1,5 +1,5 @@
 export interface Task {
-  taskId: string;
+  taskId?: string;
   status: 'pending' | 'completed' | 'failed';
   price: number;
   images?: Array<{

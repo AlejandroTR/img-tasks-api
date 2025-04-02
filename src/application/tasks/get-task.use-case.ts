@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { TaskService } from '../../infrastructure/services/task.service';
 
 @Injectable()
-export class CreateTaskUseCase {
+export class GetTaskUseCase {
   constructor(private readonly taskService: TaskService) {}
 
-  async execute(imagePath: string) {
-    return this.taskService.createTask(imagePath);
+  async execute(taskId: string) {
+    return this.taskService.getTaskById(taskId);
   }
 }
