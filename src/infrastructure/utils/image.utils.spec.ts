@@ -20,12 +20,14 @@ describe('processImage', () => {
       path: normalizePath(
         'output/image1/1024/08df957ef173984ba737be7cb69fbbab.jpg',
       ),
+      md5: '08df957ef173984ba737be7cb69fbbab',
     },
     {
       resolution: 800,
       path: normalizePath(
         'output/image1/800/08df957ef173984ba737be7cb69fbbab.jpg',
       ),
+      md5: '08df957ef173984ba737be7cb69fbbab',
     },
   ];
 

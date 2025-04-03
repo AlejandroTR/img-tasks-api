@@ -4,11 +4,17 @@ import { TaskService } from './task.service';
 import { TaskRepository } from '../adapters/task.repository';
 import { Task } from '../../domain/task.entity';
 import { ProcessedImage, processImage } from '../utils/image.utils';
+import { ImageRepository } from '../adapters/image.repository';
 
 const taskRepositoryMock = {
   create: jest.fn(),
   update: jest.fn(),
   getById: jest.fn(),
+};
+
+const imageRepositoryMock = {
+  create: jest.fn(),
+  findByTaskId: jest.fn(),
 };
 
 jest.mock('../utils/image.utils', () => ({
@@ -18,6 +24,7 @@ jest.mock('../utils/image.utils', () => ({
 describe('TaskService', () => {
   let taskService: TaskService;
   let taskRepository: TaskRepository;
+  let imageRepository: ImageRepository;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -27,11 +34,16 @@ describe('TaskService', () => {
           provide: TaskRepository,
           useValue: taskRepositoryMock,
         },
+        {
+          provide: ImageRepository,
+          useValue: imageRepositoryMock,
+        },
       ],
     }).compile();
 
     taskService = module.get<TaskService>(TaskService);
     taskRepository = module.get<TaskRepository>(TaskRepository);
+    imageRepository = module.get<ImageRepository>(ImageRepository);
   });
 
   afterEach(() => {
@@ -53,10 +65,12 @@ describe('TaskService', () => {
         {
           resolution: 1024,
           path: 'output/image1/1024/08df957ef173984ba737be7cb69fbbab.jpg',
+          md5: '08df957ef173984ba737be7cb69fbbab',
         },
         {
           resolution: 800,
           path: 'output/image1/800/08df957ef173984ba737be7cb69fbbab.jpg',
+          md5: '08df957ef173984ba737be7cb69fbbab',
         },
       ];
       (processImage as jest.Mock).mockResolvedValue(processedImages);
@@ -67,6 +81,7 @@ describe('TaskService', () => {
       expect(result).toHaveProperty('taskId');
       expect(result?.status).toBe('pending');
       expect(result?.price).toBeDefined();
+      expect(result?.images).toBeUndefined();
     });
   });
 
@@ -77,7 +92,6 @@ describe('TaskService', () => {
         taskId,
         status: 'pending',
         price: 22.5,
-        images: [],
       };
 
       taskRepositoryMock.getById.mockResolvedValue(pendingTask);
@@ -98,19 +112,22 @@ describe('TaskService', () => {
         taskId,
         status: 'completed',
         price: 22.5,
-        images: [
-          {
-            resolution: 1024,
-            path: 'output/image1/1024/08df957ef173984ba737be7cb69fbbab.jpg',
-          },
-          {
-            resolution: 800,
-            path: 'output/image1/800/08df957ef173984ba737be7cb69fbbab.jpg',
-          },
-        ],
       };
+      const images = [
+        {
+          resolution: 1024,
+          path: 'output/image1/1024/08df957ef173984ba737be7cb69fbbab.jpg',
+          md5: '08df957ef173984ba737be7cb69fbbab',
+        },
+        {
+          resolution: 800,
+          path: 'output/image1/800/08df957ef173984ba737be7cb69fbbab.jpg',
+          md5: '08df957ef173984ba737be7cb69fbbab',
+        },
+      ];
 
       taskRepositoryMock.getById.mockResolvedValue(completedTask);
+      imageRepositoryMock.findByTaskId.mockResolvedValue(images);
 
       const result = await taskService.getTaskById(taskId);
 
@@ -122,10 +139,12 @@ describe('TaskService', () => {
           {
             resolution: 1024,
             path: 'output/image1/1024/08df957ef173984ba737be7cb69fbbab.jpg',
+            md5: '08df957ef173984ba737be7cb69fbbab',
           },
           {
             resolution: 800,
             path: 'output/image1/800/08df957ef173984ba737be7cb69fbbab.jpg',
+            md5: '08df957ef173984ba737be7cb69fbbab',
           },
         ],
       });
@@ -149,10 +168,12 @@ describe('TaskService', () => {
         {
           resolution: 1024,
           path: 'output/image1/1024/08df957ef173984ba737be7cb69fbbab.jpg',
+          md5: '08df957ef173984ba737be7cb69fbbab',
         },
         {
           resolution: 800,
           path: 'output/image1/800/08df957ef173984ba737be7cb69fbbab.jpg',
+          md5: '08df957ef173984ba737be7cb69fbbab',
         },
       ];
 
@@ -163,7 +184,6 @@ describe('TaskService', () => {
 
       expect(taskRepositoryMock.update).toHaveBeenCalledWith(taskId, {
         status: 'completed',
-        images: processedImages,
       });
     });
 

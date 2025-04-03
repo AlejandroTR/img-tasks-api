@@ -23,11 +23,19 @@ export class Task {
 }
 
 export class Image {
-  @ApiProperty({ example: 1024 })
-  resolution: number;
+  @ApiProperty({ example: '67ed7df4fb09357cc9a2c31b' })
+  taskId: string;
 
   @ApiProperty({
     example: 'output/image1/1024/08df957ef173984ba737be7cb69fbbab.jpg',
   })
   path: string;
+
+  @ApiProperty({ example: 1024 })
+  resolution: number;
+
+  @ApiProperty({
+    example: '08df957ef173984ba737be7cb69fbbab',
+  })
+  md5: string;
 }

@@ -10,12 +10,6 @@ export const TaskSchema = new Schema<Task>(
       default: 'pending',
     },
     price: { type: Number, required: true },
-    images: [
-      {
-        resolution: { type: Number },
-        path: { type: String },
-      },
-    ],
   },
   { timestamps: true },
 );

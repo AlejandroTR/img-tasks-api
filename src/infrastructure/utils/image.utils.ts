@@ -10,6 +10,7 @@ const IMAGE_DIRECTORY = 'images/';
 export interface ProcessedImage {
   resolution: number;
   path: string;
+  md5: string;
 }
 
 export const processImage = async (
@@ -19,6 +20,8 @@ export const processImage = async (
 
   try {
     await fs.access(fullImagePath);
+
+    await fs.mkdir(OUTPUT_DIR, { recursive: true });
 
     const hash = await generateHash(fullImagePath);
     const originalName = path.basename(imagePath, path.extname(imagePath));
@@ -40,7 +43,7 @@ export const processImage = async (
         .resize({ width: resolution })
         .toFile(outputPath);
 
-      processedImages.push({ resolution, path: outputPath });
+      processedImages.push({ path: outputPath, resolution, md5: hash });
     }
 
     return processedImages;
