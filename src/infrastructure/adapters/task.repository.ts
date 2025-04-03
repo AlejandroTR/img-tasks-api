@@ -36,6 +36,6 @@ export class TaskRepository {
   }
 
   async getById(taskId: string): Promise<Task | null> {
-    return this.taskModel.findOne({ taskId }).select('-_id').exec();
+    return this.taskModel.findOne({ taskId }).lean().select('-_id').exec();
   }
 }

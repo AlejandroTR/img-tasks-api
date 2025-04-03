@@ -26,7 +26,18 @@ export class TaskService {
   }
 
   async getTaskById(taskId: string): Promise<Task | null> {
-    return this.taskRepository.getById(taskId);
+    const task = await this.taskRepository.getById(taskId);
+
+    if (!task) {
+      return null;
+    }
+
+    if (task.status === 'pending' || task.status === 'failed') {
+      const { images, ...taskWithoutImages } = task;
+      return taskWithoutImages;
+    }
+
+    return task;
   }
 
   private async processImageAsync(imagePath: string, taskId: string) {
