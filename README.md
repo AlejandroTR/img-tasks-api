@@ -1,37 +1,89 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
-
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
 ## Description
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+NestJS REST API that performs image processing and stores data in MongoDB. The application is hosted on Docker for easy configuration and deployment.
 
-## Project setup
+## Prerequisites
+
+Please make sure you have the following requirements installed before continuing:
+
+- Docker: [Installation](https://docs.docker.com/engine/install/ubuntu/).
+- Docker Compose: [Installation](https://docs.docker.com/compose/install/).
+- Node.js (optional for local development): [Installation](https://nodejs.org/en/download/package-manager).
+
+## Light it up
+
+There are two ways to test the application. The first is to run the application in a Docker container. The second is to start the service locally.
+
+### Option 1. Docker
+
+We install the dependencies
 
 ```bash
 $ npm install
 ```
 
-## Compile and run the project
+We need to generate a .env file in the root of the project for the MongoDB variables. This data is sensitive and should never be versioned, but it is necessary for testing.
+
+```
+MONGO_INITDB_ROOT_USERNAME=root
+MONGO_INITDB_ROOT_PASSWORD=admin
+MONGO_INITDB_DATABASE=img-tasks-api
+MONGO_URI=mongodb://root:admin@mongodb:27017/img-tasks-api?authSource=admin
+```
+
+The entire application has been dockerized to make it easier to test. To do this, there is the docker-compose.yml file in this same root folder /img-tasks-api, where we have to navigate in the terminal and run:
+
+```bash
+$ docker-compose up --build -d
+```
+
+Once Docker is up and running, we launch the script that adds test data.
+
+```bash
+$ npm run create-tasks
+```
+
+This will provide us with the necessary environment, having Nestjs listening on localhost:3000. It is normal for docker-compose build to take a while to complete the first time it is run.
+
+Stop the process by running
+
+```bash
+$ docker-compose down
+```
+
+If you want to interact with the API, feel free to go to the [api](http://localhost:3000/api) to see the Swagger interface.
+
+![alt text](https://i.ibb.co/0jXgtC1c/swagger.png)
+
+### Endpoints
+
+To make requests we can also use an interface like Insomnia
+
+- POST /tasks Create a task and process the images.
+  ![alt text](https://i.ibb.co/DH8z7LjP/post-tasks.png)
+- GET /tasks/:taskId Gets the data for a specific task by ID.
+  ![alt text](https://i.ibb.co/SXVQD1LL/get-tasks.png)
+
+### MongoDB
+
+To view the database and its collections we can use an application like [MongoDB Compass](https://www.mongodb.com/products/tools/compass)
+
+![alt text](https://i.ibb.co/jZJ0rpBy/mongodb.png)
+
+## Option 2. Local environment
+
+We need to generate a .env.local file in the root of the project for the MongoDB variables. This data is sensitive and should never be versioned, but it is necessary for testing.
+
+```
+MONGO_INITDB_ROOT_USERNAME=root
+MONGO_INITDB_ROOT_PASSWORD=admin
+MONGO_INITDB_DATABASE=img-tasks-api
+MONGO_URI=mongodb://root:admin@mongodb:27017/img-tasks-api?authSource=admin
+```
+
+Once the docker is built, we stop nest_app to be able to start it locally since they share a port
+
+Compile and run the project:
 
 ```bash
 # development
@@ -39,9 +91,6 @@ $ npm run start
 
 # watch mode
 $ npm run start:dev
-
-# production mode
-$ npm run start:prod
 ```
 
 ## Run tests
@@ -50,49 +99,29 @@ $ npm run start:prod
 # unit tests
 $ npm run test
 
-# e2e tests
-$ npm run test:e2e
-
 # test coverage
 $ npm run test:cov
 ```
 
-## Deployment
+## Sample data
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+The test images are located in the images folder at the root of the project. The script uses the first two images, but you can test it with image3.jpg by making a POST request.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+```http
+POST http://localhost:3000/tasks
+Content-Type: application/json
 
-```bash
-$ npm install -g mau
-$ mau deploy
+{
+  "imagePath": "image3.jpg"
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Images can be added to this folder for testing purposes.
 
-## Resources
+To view the processed images we can run the following command in terminal
 
-Check out a few resources that may come in handy when working with NestJS:
+```bash
+$ docker cp nest_app:/app/output ./output
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+An output folder will be generated in the root of the project with the new images.
