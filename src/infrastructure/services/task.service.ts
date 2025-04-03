@@ -37,8 +37,8 @@ export class TaskService {
         images: processedImages,
       });
     } catch (error) {
+      console.error('Error occurred:', error);
       await this.taskRepository.update(taskId, { status: 'failed' });
-      throw error;
     }
   }
 }
